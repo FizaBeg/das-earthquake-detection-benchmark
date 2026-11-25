@@ -1,0 +1,132 @@
+\clearpage
+\section*{Figure legends}
+\noindent\textbf{Fig.~1} Examples from the test split of the Stanford telecom-fibre DAS dataset \citep{HuotData2022}. (a--c) An example labelled as earthquake; (d--f) an example labelled as noise. (a, d) Distributed values at full resolution (288 channels $\times$ 695 samples, 25 samples\,s$^{-1}$; strain rate after the preprocessing of \citet{HuotCode2022}). (b, e) The same examples after 6-channel $\times$ 2-sample average pooling, as given to all models. (c, f) Three single-channel traces, showing the low single-channel signal-to-noise ratio.
+
+\noindent\textbf{Fig.~2} Receiver operating characteristic curves of the seed ensembles (mean probability of five runs) on the test split.
+
+\noindent\textbf{Fig.~3} Test ROC-AUC (mean $\pm$ standard deviation over five seeds) under synthetic perturbations of the real test records. (a) Additive white Gaussian noise at decreasing signal-to-noise ratio. (b) Random channels set to zero. Models were trained on unperturbed data.
+
+\noindent\textbf{Fig.~4} Test ROC-AUC (mean $\pm$ standard deviation over five seeds) against the number of labelled training examples (1\,\%, 10\,\% and 100\,\% of the training split). Points are slightly offset horizontally for readability.
+
+\noindent\textbf{Fig.~5} Detection skill against computational cost on one CPU thread. (a) Test ROC-AUC against training wall-clock time per run (mean $\pm$ standard deviation over five seeds). (b) Test ROC-AUC against single-patch inference latency; marker area is proportional to the number of trainable parameters.
+
+\clearpage
+\section*{Tables}
+\begin{table}[h]
+\caption{Data used in this study: the distributed training, evaluation and test splits of the Stanford telecom-fibre DAS earthquake-detection dataset \citep{HuotData2022}, as read from the files.}\label{tab:data}
+\centering\footnotesize\setlength{\tabcolsep}{3pt}
+\begin{tabular}{lccccc}
+\toprule
+Split & Files & Examples & Earthquake & Noise & Shape (ch. $\times$ samples)\\
+\midrule
+Training & 10 & %%NTRAIN%% & %%NTRAINPOS%% & %%NTRAINPOS%% & $288\times695$\\
+Evaluation (model selection) & 1 & %%NEVAL%% & %%NEVALPOS%% & %%NEVALPOS%% & $288\times695$\\
+Test (reported once) & 1 & %%NTEST%% & %%NTESTPOS%% & %%NTESTPOS%% & $288\times695$\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{table}[h]
+\caption{Architectures compared. All take a $1\times48\times320$ (channel $\times$ time) input and output one logit. Parameters and forward operations were counted in PyTorch.}\label{tab:arch}
+\centering\footnotesize\setlength{\tabcolsep}{3pt}
+\begin{tabular}{>{\raggedright}p{2.2cm}>{\raggedright}p{8.3cm}rr}
+\toprule
+Model & Structure & Parameters & GFLOPs\\
+\midrule
+CNN & 4 $\times$ [Conv $3\times3$, BN, ReLU, MaxPool $2\times2$] (16--32--48--64), global average pool, linear & %%PAR_CNN%% & %%GFLOP_CNN%%\\
+CNN--LSTM & 3 conv blocks (16--32--48) $\rightarrow$ mean over space $\rightarrow$ BiLSTM (2$\times$64) over 40 steps $\rightarrow$ mean over time, linear & %%PAR_CNNLSTM%% & %%GFLOP_CNNLSTM%%\\
+ConvLSTM & 2 conv blocks (16--32) $\rightarrow$ ConvLSTM (32 hidden, 1-D kernel 5 along fibre) over 80 steps $\rightarrow$ mean over space and time, linear & %%PAR_CONVLSTM%% & %%GFLOP_CONVLSTM%%\\
+Transformer & $8\times16$ patch embedding (dim 64, 120 tokens + class token) $\rightarrow$ 4 encoder layers (4 heads, FFN 128) $\rightarrow$ class token, linear & %%PAR_TRANS%% & %%GFLOP_TRANS%%\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{table}[h]
+\caption{E1: test performance with all training labels. Left: mean $\pm$ standard deviation over five seeds. Right: seed ensemble (mean probability of the five runs) with stratified bootstrap 95\,\% interval of ROC-AUC. Accuracy and F1 use a 0.5 threshold.}\label{tab:main}
+\centering\footnotesize\setlength{\tabcolsep}{3pt}
+\begin{tabular}{lccc|cc}
+\toprule
+ & \multicolumn{3}{c|}{Single runs (mean $\pm$ SD)} & \multicolumn{2}{c}{Seed ensemble}\\
+Model & ROC-AUC & Accuracy & F1 & ROC-AUC [95\,\% CI] & Accuracy\\
+\midrule
+CNN & %%AUC_CNN%% & %%ACC_CNN%% & %%F1_CNN%% & %%EAUC_CNN%% [%%EAUCLO_CNN%%, %%EAUCHI_CNN%%] & %%EACC_CNN%%\\
+CNN--LSTM & %%AUC_CNNLSTM%% & %%ACC_CNNLSTM%% & %%F1_CNNLSTM%% & %%EAUC_CNNLSTM%% [%%EAUCLO_CNNLSTM%%, %%EAUCHI_CNNLSTM%%] & %%EACC_CNNLSTM%%\\
+ConvLSTM & %%AUC_CONVLSTM%% & %%ACC_CONVLSTM%% & %%F1_CONVLSTM%% & %%EAUC_CONVLSTM%% [%%EAUCLO_CONVLSTM%%, %%EAUCHI_CONVLSTM%%] & %%EACC_CONVLSTM%%\\
+Transformer & %%AUC_TRANS%% & %%ACC_TRANS%% & %%F1_TRANS%% & %%EAUC_TRANS%% [%%EAUCLO_TRANS%%, %%EAUCHI_TRANS%%] & %%EACC_TRANS%%\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{table}[h]
+\caption{E1: pairwise comparison of seed ensembles on the clean test split. $\Delta$AUC is model A minus model B. $n_{A}$ and $n_{B}$ count test examples classified correctly only by A or only by B. $p$-values are Holm-adjusted over the six pairs.}\label{tab:pairs}
+\centering\footnotesize\setlength{\tabcolsep}{3pt}
+\begin{tabular}{llccccc}
+\toprule
+A & B & $\Delta$AUC & 95\,\% CI & $p$ (bootstrap) & $n_A$ / $n_B$ & $p$ (McNemar)\\
+\midrule
+%%PAIRROWS%%
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{table}[h]
+\caption{E2: test ROC-AUC (mean $\pm$ standard deviation over five seeds) under synthetic perturbations of the real test records. The last column is the Friedman $p$-value for differences between architectures.}\label{tab:noise}
+\centering\footnotesize\setlength{\tabcolsep}{3pt}
+\begin{tabular}{lccccc}
+\toprule
+Condition & CNN & CNN--LSTM & ConvLSTM & Transformer & Friedman $p$\\
+\midrule
+%%NOISEROWS%%
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{table}[h]
+\caption{E3: test ROC-AUC (mean $\pm$ standard deviation over five seeds) with reduced labels. The last column is the Friedman $p$-value for differences between architectures.}\label{tab:frac}
+\centering\footnotesize\setlength{\tabcolsep}{3pt}
+\begin{tabular}{lccccc}
+\toprule
+Labels (examples) & CNN & CNN--LSTM & ConvLSTM & Transformer & Friedman $p$\\
+\midrule
+%%FRACROWS%%
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{table}[h]
+\caption{Computational cost on one thread of an Intel Xeon 2.1\,GHz virtual CPU. Latency: median of 50 single-patch forward passes. Step: median time of one training step (batch 32, forward and backward). Memory: increase of peak resident memory during training steps. Training time: wall-clock per E1 run (mean $\pm$ standard deviation over five seeds, two runs sharing the machine).}\label{tab:cost}
+\centering\footnotesize\setlength{\tabcolsep}{3pt}
+\begin{tabular}{lccccc}
+\toprule
+Model & GFLOPs / patch & Latency (ms) & Step (s) & Memory (MB) & Training time (s)\\
+\midrule
+CNN & %%GFLOP_CNN%% & %%LAT_CNN%% & %%STEP_CNN%% & %%MEM_CNN%% & %%TIME_CNN%%\\
+CNN--LSTM & %%GFLOP_CNNLSTM%% & %%LAT_CNNLSTM%% & %%STEP_CNNLSTM%% & %%MEM_CNNLSTM%% & %%TIME_CNNLSTM%%\\
+ConvLSTM & %%GFLOP_CONVLSTM%% & %%LAT_CONVLSTM%% & %%STEP_CONVLSTM%% & %%MEM_CONVLSTM%% & %%TIME_CONVLSTM%%\\
+Transformer & %%GFLOP_TRANS%% & %%LAT_TRANS%% & %%STEP_TRANS%% & %%MEM_TRANS%% & %%TIME_TRANS%%\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\clearpage
+\section*{Figures}
+\begin{figure}[p]\centering
+\includegraphics[width=\textwidth]{figures/fig1_data.pdf}
+\caption{Examples from the test split (see Figure legends).}\label{fig:data}
+\end{figure}
+\begin{figure}[p]\centering
+\includegraphics[width=0.6\textwidth]{figures/fig2_roc.pdf}
+\caption{ROC curves of the seed ensembles (see Figure legends).}\label{fig:roc}
+\end{figure}
+\begin{figure}[p]\centering
+\includegraphics[width=\textwidth]{figures/fig3_noise.pdf}
+\caption{Robustness to synthetic perturbations (see Figure legends).}\label{fig:noise}
+\end{figure}
+\begin{figure}[p]\centering
+\includegraphics[width=0.6\textwidth]{figures/fig4_labels.pdf}
+\caption{Label efficiency (see Figure legends).}\label{fig:labels}
+\end{figure}
+\begin{figure}[p]\centering
+\includegraphics[width=\textwidth]{figures/fig5_cost.pdf}
+\caption{Skill against cost (see Figure legends).}\label{fig:cost}
+\end{figure}

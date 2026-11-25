@@ -1,0 +1,38 @@
+\section*{Discussion}
+\subsection*{Architecture matters little on clean data, training variability matters more}
+With all labels and an identical budget, the four architectures reached similar ROC-AUC on the clean test split. The CNN--LSTM ranked first most often, but the pairwise differences between seed ensembles (at most %%MAXDAUC%% in ROC-AUC) are well inside the uncertainty of a %%NTEST%%-example test set. The variation between seeds of the same architecture was of comparable size, and accuracy at a fixed threshold varied far more than ROC-AUC. For DAS detection studies with small curated test sets, single-run comparisons of accuracy can therefore be misleading. Reporting threshold-free metrics over several seeds, using paired tests, and choosing the operating threshold on the evaluation split are simple ways to make such comparisons more reliable. Seed ensembling also improved both ROC-AUC and threshold stability for every architecture at no cost in labelled data.
+
+\subsection*{Robustness to incoherent noise differs strongly}
+The clearest difference between architectures appeared when strong, spatially and temporally incoherent noise was added. At $-5$\,dB the CNN lost most of its skill, the CNN--LSTM lost less, and the ConvLSTM and especially the Transformer kept much higher ROC-AUC. We did not run ablations, so we can only offer an interpretation. The Transformer's first operation is a learned linear projection of an $8\times16$ block, covering 48 original channels (about 380\,m of fibre) and 1.28\,s. Such a projection can act as a learned weighted stack that averages out incoherent noise while preserving arrivals that are coherent across the block. The ConvLSTM also accumulates evidence over many time steps before the decision. In contrast, the first layers of the CNN respond to local $3\times3$ patterns, which white noise changes strongly. None of the models saw added noise during training, so augmentation with realistic noise would probably narrow these gaps. Even so, the result shows that architectures that are equivalent on the training distribution can respond very differently to a change in noise level, which is common when a detector is moved to a noisier cable section or a different season.
+
+All models tolerated dead channels well: removing half of the channels reduced ROC-AUC by only a few hundredths. This is consistent with the high spatial redundancy of DAS, where an earthquake arrival is recorded coherently on many neighbouring channels, and it is encouraging for telecom fibres with poorly coupled sections, such as those reported on submarine cables off Japan \citep{Ide2021}.
+
+%%E3DISC%%
+
+\subsection*{Practical recommendations}
+For a CPU-only setting similar to ours, a compact CNN or CNN--LSTM is a reasonable first choice when the noise conditions of deployment resemble those of the training data: they train quickly and were the most accurate on clean data. If the noise level at deployment is uncertain or variable, a patch-based Transformer of similar size is worth testing, since it was by far the most robust to strong incoherent noise and had the lowest inference latency. The ConvLSTM did not offer a clear advantage in our tests and cost about 1.7 times more training time, because its recurrence cannot be parallelised over time. Whatever the architecture, several seeds and a seed ensemble should be used.
+
+\subsection*{Limitations}
+The study has several limitations. (1) All data come from one fibre array, so we could not test transfer between sites; cross-site generalisation, for example to submarine cables or other urban fibres, remains an open question and requires additional labelled datasets. (2) The test split is small (%%NTEST%% examples) and balanced. It does not represent continuous monitoring, where noise windows vastly outnumber earthquakes; false-alarm rates per hour of data cannot be inferred from our results. (3) Each catalogued event contributes two examples, one from each 288-channel fibre segment \citep{HuotCode2022}. The splits were made by the dataset authors and we could not verify whether the two segments of an event always fall in the same split; if not, test performance may be slightly optimistic for all models alike. (4) To fit the CPU budget we averaged the input over 6 channels and 2 samples and used small models trained for 20 epochs without architecture-specific tuning; larger or tuned models, or the full-resolution input, may change the ranking. (5) The perturbations in E2 are synthetic white noise and random dead channels; real DAS noise (traffic, coupling changes, instrument noise) is often spatially coherent and may affect the architectures differently.
+
+\section*{Conclusions}
+We compared four spatiotemporal deep-learning architectures (CNN, CNN--LSTM, ConvLSTM and Transformer) for earthquake detection on real telecommunication-fibre DAS records from the Stanford array, using identical data, input, training budget and evaluation. On clean data all four reached ROC-AUC of about 0.95--0.97, and no pairwise difference was statistically significant. Their behaviour diverged under strong synthetic white noise, where the Transformer and the ConvLSTM kept much more skill than the CNN, while all models tolerated the loss of up to half of the channels. %%E3CONC%% On one CPU thread every model processed a 25.6-s window in about 13\,ms or less. Architecture comparisons for DAS should be judged by their robustness and variability, not only by single-run accuracy on a small clean test set, and future work should test them across different fibres and with realistic coherent noise.
+
+\section*{Abbreviations}
+AUC: area under the curve; BiLSTM: bidirectional LSTM; BN: batch normalisation; CI: confidence interval; CNN: convolutional neural network; ConvLSTM: convolutional LSTM; DAS: distributed acoustic sensing; FLOPs: floating-point operations; LSTM: long short-term memory; NCEDC: Northern California Earthquake Data Center; ROC: receiver operating characteristic; SNR: signal-to-noise ratio.
+
+\section*{Declarations}
+\subsection*{Ethics approval and consent to participate}
+Not applicable.
+\subsection*{Consent for publication}
+Not applicable.
+\subsection*{Availability of data and materials}
+The DAS data analysed in this study are publicly available on Zenodo under a CC BY 4.0 licence: Huot F (2022) Stanford fiber-optic DAS array: earthquake detection dataset, \url{https://doi.org/10.5281/zenodo.6344570}. The preprocessing code of the dataset authors is available at \url{https://doi.org/10.5281/zenodo.6344771}. The code used for this study (data conversion, models, training, perturbation tests, statistics and figures) is provided as Additional file 1 and %%CODEREPO%%.
+\subsection*{Competing interests}
+The authors declare that they have no competing interests.
+\subsection*{Funding}
+%%FUNDING%%
+\subsection*{Authors' contributions}
+%%CONTRIB%%
+\subsection*{Acknowledgements}
+We thank Fantine Huot, Robert G. Clapp, Biondo L. Biondi and the Stanford DAS project for making the labelled data and code publicly available. %%AIUSE%%

@@ -1,0 +1,12 @@
+378ffdd8b16c6ded9b07c7384fa698ab  eval-0000-of-0001.tfrecord.gz
+d344bac79f4a82fc78bf095f31c9bc3a  test-0000-of-0001.tfrecord.gz
+299e0c38fa140e9ec17da1e545a0b947  train-0000-of-0010.tfrecord.gz
+153d03048d0c40071a2d9dec91e2191e  train-0001-of-0010.tfrecord.gz
+a72b41c6029761275a30502eb7a8d69b  train-0002-of-0010.tfrecord.gz
+436dc580fb2362a8624daa77b92b531a  train-0003-of-0010.tfrecord.gz
+35c721d5267b1e0d938fabffc1a3f30a  train-0004-of-0010.tfrecord.gz
+5d2919006253f992f7c1eb8ba07c847a  train-0005-of-0010.tfrecord.gz
+1f2b466a7de0f14b50f6ebcdde2d57d6  train-0006-of-0010.tfrecord.gz
+be07d188e60808f357e27e00c3720c1e  train-0007-of-0010.tfrecord.gz
+c4110869e3269271292c415d1d3e2083  train-0008-of-0010.tfrecord.gz
+840143497659febb93ac59c7203abff5  train-0009-of-0010.tfrecord.gz

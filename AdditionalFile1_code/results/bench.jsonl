@@ -1,0 +1,4 @@
+{"model": "CNN", "params": 46609, "gflops_fwd": 0.079626368, "latency_ms_b1": 4.349318999913976, "step_s_b32": 0.3311103799999273, "train_mem_mb": 352.78515625}
+{"model": "CNN-LSTM", "params": 77265, "gflops_fwd": 0.066355456, "latency_ms_b1": 4.09852000001365, "step_s_b32": 0.2506611600000497, "train_mem_mb": 379.57421875}
+{"model": "ConvLSTM", "params": 45969, "gflops_fwd": 0.118456384, "latency_ms_b1": 12.565737999977955, "step_s_b32": 0.5335979220000127, "train_mem_mb": 349.94140625}
+{"model": "Transformer", "params": 150145, "gflops_fwd": 0.048678016, "latency_ms_b1": 2.7244125000720487, "step_s_b32": 0.3435400879999406, "train_mem_mb": 284.5}
